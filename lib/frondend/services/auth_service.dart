@@ -1,13 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-/// A minimal, app-wide auth session holder.
-///
-/// This is intentionally backend-agnostic: swap [login]/[register] with
-/// real API calls later without touching any screen code, since screens
-/// only ever talk to [AuthService.instance].
 class AuthService extends ChangeNotifier {
   AuthService._internal();
   static final AuthService instance = AuthService._internal();
+  static const String baseUrl = "http://127.0.0.1:5000";
 
   bool _isLoggedIn = false;
   String? _userName;
@@ -17,29 +15,52 @@ class AuthService extends ChangeNotifier {
   String? get userName => _userName;
   String? get userEmail => _userEmail;
 
-  /// Mock login - replace the body with a real API call when ready.
   Future<bool> login({required String email, required String password}) async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    _isLoggedIn = true;
-    _userEmail = email;
-    _userName ??= email.split('@').first;
-    notifyListeners();
-    return true;
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/login"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        _isLoggedIn = true;
+        _userName = body["name"];
+        _userEmail = body["email"];
+
+        notifyListeners();
+
+        return true;
+      }
+      throw Exception(body["message"]);
+    } catch (e, stackTrace) {
+      print("ERROR: $e");
+      print(stackTrace);
+      rethrow;
+    }
   }
 
-  /// Mock registration - replace the body with a real API call when ready.
   Future<bool> register({
     required String name,
     required String email,
     required String phone,
     required String password,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    _isLoggedIn = true;
-    _userName = name;
-    _userEmail = email;
-    notifyListeners();
-    return true;
+    final response = await http.post(
+      Uri.parse("$baseUrl/register"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "password": password,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception(response.body);
+    }
   }
 
   void logout() {

@@ -28,23 +28,39 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
+Future<void> _handleLogin() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _isLoading = true);
+
+  try {
     await AuthService.instance.login(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
-    if (!mounted) return;
-    setState(() => _isLoading = false);
 
-    // Replace the whole stack so the user lands back on Home,
-    // now authenticated.
+    if (!mounted) return;
+
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const HomeScreen()),
       (route) => false,
     );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          e.toString().replaceFirst("Exception: ", ""),
+        ),
+      ),
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
+}
 
   @override
   Widget build(BuildContext context) {
