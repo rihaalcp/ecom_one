@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import '../database/mongo_service.dart';
 import '../models/user.dart';
-
+import '../models/admin/login_page_model.dart';
 class AuthService {
   static String hashPassword(String password){
     return sha256.convert(
@@ -46,5 +46,19 @@ static Future<Map?> login(
       "email": user["email"],
       "phone": user["phone"],
     };
+}
+static get loginPageCollection => MongoService.db.collection('LoginPageModel');
+static Future<Map?> getLoginPage() async{
+  return await loginPageCollection.findOne();
+}
+static Future<bool>updateLoginPage(LoginPageModel page) async{
+  await loginPageCollection.updateOne(
+    {},
+    {
+      r"$set":page.toJson(),
+    },
+    upsert:true
+  );
+  return true;
 }
 }

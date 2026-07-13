@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/gradient_button.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,7 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _isLoading = false;
-
+  Map<String, dynamic>? pageData;
+  bool isLoading = true;
   @override
   void dispose() {
     _emailController.dispose();
@@ -62,8 +66,31 @@ Future<void> _handleLogin() async {
   }
 }
 
+Future<void> loadPage()async{
+  final response = await http.get(
+    Uri.parse("http://localhost:5000/admin/page/get-login-page"),
+  );
+  print(response);
+  if(response.statusCode == 200){
+    pageData = jsonDecode(response.body);
+    print("update $pageData");
+  }
+  setState(() {
+    isLoading = false;
+  });
+} 
+@override
+void initState(){
+  super.initState();
+  loadPage();
+}
   @override
   Widget build(BuildContext context) {
+    if(isLoading){
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(),),
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -92,8 +119,8 @@ Future<void> _handleLogin() async {
                     ),
                     child: const Icon(Icons.diamond, color: Colors.white, size: 32),
                   ),
-                  const Text(
-                    'Lumina',
+                   Text(
+                    pageData?["logoText"]?? "App Name",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -101,8 +128,8 @@ Future<void> _handleLogin() async {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Premium essentials for the modern lifestyle.',
+                   Text(
+                    pageData?["description"] ?? "description",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.onSurfaceVariant),
                   ),
@@ -130,8 +157,8 @@ Future<void> _handleLogin() async {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Welcome Back',
+                          Text(
+                            pageData?["heading"] ?? "welcome back",
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w700,
@@ -139,14 +166,14 @@ Future<void> _handleLogin() async {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Please enter your details to continue',
+                          Text(
+                            pageData?["subHeading"] ?? 'Please enter your details to continue',
                             style: TextStyle(color: AppColors.onSurfaceVariant),
                           ),
                           const SizedBox(height: 24),
                           AuthTextField(
-                            label: 'Email Address',
-                            hint: 'name@example.com',
+                            label: pageData?["emailLabel"] ?? "email Label",
+                            hint: pageData?["emailPlaceholder"] ?? "email Placeholder",
                             icon: Icons.mail_outline,
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -158,8 +185,8 @@ Future<void> _handleLogin() async {
                           ),
                           const SizedBox(height: 16),
                           AuthTextField(
-                            label: 'Password',
-                            hint: '••••••••',
+                            label: pageData?["passwordLabel"] ?? "Password Label",
+                            hint: pageData?["passwordPlaceholder"] ?? "Password Hint",
                             icon: Icons.lock_outline,
                             controller: _passwordController,
                             isPassword: true,
@@ -183,7 +210,7 @@ Future<void> _handleLogin() async {
                                       onChanged: (v) =>
                                           setState(() => _rememberMe = v ?? false),
                                     ),
-                                    const Text('Remember Me',
+                                    Text(pageData?["rememberMe"] ?? "Remember Me",
                                         style: TextStyle(
                                             fontSize: 13,
                                             color: AppColors.onSurfaceVariant)),
@@ -192,7 +219,7 @@ Future<void> _handleLogin() async {
                               ),
                               TextButton(
                                 onPressed: () {},
-                                child: const Text('Forgot Password?',
+                                child:  Text(pageData?["forgotPassword"] ?? "ForgotPassword",
                                     style: TextStyle(
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.w600)),
@@ -201,7 +228,7 @@ Future<void> _handleLogin() async {
                           ),
                           const SizedBox(height: 8),
                           GradientButton(
-                            label: 'Login to Account',
+                            label: pageData?["loginButton"] ?? 'Login to Account',
                             isLoading: _isLoading,
                             onPressed: _handleLogin,
                           ),
@@ -227,11 +254,11 @@ Future<void> _handleLogin() async {
                                 child: OutlinedButton.icon(
                                   onPressed: () {},
                                   icon:SvgPicture.asset(
-                                'assets/google.svg',
+                                'assets/google/google.svg',
                                 width: 24,
                               height: 24,
                               ),
-                                  label: const Text('Google',
+                                  label: Text(pageData?["googleButton"] ?? "Google",
                                       style: TextStyle(color: AppColors.onSurface)),
                                   style: OutlinedButton.styleFrom(
                                     minimumSize: const Size.fromHeight(52),
@@ -247,7 +274,7 @@ Future<void> _handleLogin() async {
                                 child: OutlinedButton.icon(
                                   onPressed: () {},
                                   icon: const Icon(Icons.apple, size: 30),
-                                  label: const Text('Apple'),
+                                  label:  Text(pageData?["appleButton"] ?? "Apple"),
                                   style: OutlinedButton.styleFrom(
                                     minimumSize: const Size.fromHeight(52),
                                     backgroundColor: AppColors.onSurface,
@@ -269,7 +296,7 @@ Future<void> _handleLogin() async {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don't have an account?",
+                       Text(pageData?["signupText"] ?? "Dont't have an account?",
                           style: TextStyle(color: AppColors.onSurfaceVariant)),
                       TextButton(
                         onPressed: () {
@@ -278,7 +305,7 @@ Future<void> _handleLogin() async {
                                 builder: (_) => const RegisterScreen()),
                           );
                         },
-                        child: const Text('Sign Up',
+                        child: Text(pageData?["signupButton"] ?? 'Sign Up',
                             style: TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700)),

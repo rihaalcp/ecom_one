@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
-import '../category.dart';
+import '../../admin/screen/login_content_screen.dart';
+import '../../theme/app_colors.dart';
+import '../../category.dart';
 import '../models/product.dart';
 import '../services/auth_service.dart';
 import '../widgets/product_card.dart';
@@ -57,6 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
   }
 
+  void _goToAdmin(){
+    Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const LoginContentPage()));
+  }
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = AuthService.instance.isLoggedIn;
@@ -66,6 +70,15 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Lumina'),
         actions: [
+          TextButton(
+            onPressed: _goToAdmin,
+            style:TextButton.styleFrom(
+              foregroundColor: AppColors.onSurface,
+            ),
+            child: const Text("Admin",
+            style: TextStyle(fontWeight: FontWeight.bold),),
+          ),
+          const SizedBox(width: 6,),
           if (!isLoggedIn) ...[
             TextButton(
               onPressed: _goToLogin,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'frondend/theme/app_theme.dart';
-import 'frondend/screens/home_screen.dart';
+import 'frondend/clients/screens/home_screen.dart';
 
 void main() {
   runApp(const LuminaApp());

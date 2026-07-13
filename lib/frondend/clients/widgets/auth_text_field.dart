@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 
 /// A labeled text field with a trailing icon, used across Login/Register.
 /// Supports an optional password-visibility toggle.

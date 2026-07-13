@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/gradient_button.dart';
@@ -77,13 +77,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       return;
     }
-    setState(() => _isLoading = true);
-    await AuthService.instance.register(
-      name: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
-      password: _passwordController.text,
-    );
+    try {
+  setState(() => _isLoading = true);
+
+  await AuthService.instance.register(
+    name: _nameController.text.trim(),
+    email: _emailController.text.trim(),
+    phone: _phoneController.text.trim(),
+    password: _passwordController.text,
+  );
+
+  if (!mounted) return;
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const HomeScreen()),
+  );
+} catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(e.toString())),
+  );
+} finally {
+  if (mounted) {
+    setState(() => _isLoading = false);
+  }
+}
     if (!mounted) return;
     setState(() => _isLoading = false);
 
@@ -106,17 +124,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     IconButton(
+                  //       onPressed: () => Navigator.of(context).pop(),
+                  //       icon: const Icon(
+                  //         Icons.arrow_back,
+                  //         color: AppColors.onSurface,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 8),
                   const Text(
                     'Create Account',

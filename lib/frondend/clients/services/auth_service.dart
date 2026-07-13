@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:shelf/shelf.dart';
 class AuthService extends ChangeNotifier {
   AuthService._internal();
   static final AuthService instance = AuthService._internal();
@@ -14,7 +14,7 @@ class AuthService extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   String? get userName => _userName;
   String? get userEmail => _userEmail;
-
+    
   Future<bool> login({required String email, required String password}) async {
     try {
       final response = await http.post(
@@ -62,11 +62,11 @@ class AuthService extends ChangeNotifier {
       throw Exception(response.body);
     }
   }
-
   void logout() {
     _isLoggedIn = false;
     _userName = null;
     _userEmail = null;
     notifyListeners();
   }
+
 }

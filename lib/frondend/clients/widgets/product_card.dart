@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 import '../models/product.dart';
 
 /// Product card used in the "Featured Products" 2-column grid.
