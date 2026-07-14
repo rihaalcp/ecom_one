@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import '../../theme/app_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
@@ -27,6 +29,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   double _strength = 0; // 0..1
   String _strengthLabel = 'Password strength';
   Color _strengthColor = AppColors.surfaceContainerHigh;
+
+  Map<String, dynamic> registerData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    loadRegisterCMS();
+  }
+
+  Future<void> loadRegisterCMS() async {
+    try {
+      final res = await http.get(
+        Uri.parse("http://localhost:5000/admin/page/get-register-page"),
+      );
+      if (!mounted) return;
+      setState(() {
+        registerData = jsonDecode(res.body);
+      });
+    } catch (e) {}
+  }
 
   @override
   void dispose() {
@@ -78,39 +100,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     try {
-  setState(() => _isLoading = true);
+      setState(() => _isLoading = true);
 
-  await AuthService.instance.register(
-    name: _nameController.text.trim(),
-    email: _emailController.text.trim(),
-    phone: _phoneController.text.trim(),
-    password: _passwordController.text,
-  );
+      await AuthService.instance.register(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        password: _passwordController.text,
+      );
 
-  if (!mounted) return;
+      if (!mounted) return;
 
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (_) => const HomeScreen()),
-  );
-} catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(e.toString())),
-  );
-} finally {
-  if (mounted) {
-    setState(() => _isLoading = false);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
-}
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-      (route) => false,
-    );
+  
+  Future<void> saveRegisterCMS() async {
+    try {
+      final res = await http.get(
+        Uri.parse("http://localhost:5000/admin/page/get-register-page"),
+      );
+      if(res.statusCode == 200){
+        registerData = jsonDecode(res.body);
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(jsonDecode(res.body)['message'] ?? 'Saved')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving: $e')),
+      );
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,8 +170,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   //   ],
                   // ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Create Account',
+                   Text(
+                    registerData["title"] ?? 'Create Account',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
@@ -145,8 +179,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Join Lumina for a curated premium shopping experience.',
+                   Text(
+                    registerData["subtitle"] ?? 'Join Lumina for a curated premium shopping experience.',
                     style: TextStyle(color: AppColors.onSurfaceVariant),
                   ),
                   const SizedBox(height: 28),
@@ -155,8 +189,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       children: [
                         AuthTextField(
-                          label: 'Full Name',
-                          hint: 'John Doe',
+                          label: registerData["fullNameLabel"] ?? 'Full Name',
+                          hint: registerData["fullNameHint"] ?? 'John Doe',
                           icon: Icons.person_outline,
                           controller: _nameController,
                           validator: (v) => (v == null || v.isEmpty)
@@ -165,8 +199,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Email Address',
-                          hint: 'email@example.com',
+                          label: registerData["emailLabel"] ?? 'Email Address',
+                          hint: registerData["emailHint"] ?? 'email@example.com',
                           icon: Icons.mail_outline,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -179,8 +213,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Phone Number',
-                          hint: '+1 (555) 000-0000',
+                          label: registerData["phoneLabel"] ?? 'Phone Number',
+                          hint: registerData["phoneHint"] ?? '+1 (555) 000-0000',
                           icon: Icons.call_outlined,
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
@@ -190,8 +224,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Password',
-                          hint: 'Min. 8 characters',
+                          label: registerData["passwordLabel"] ?? 'Password',
+                          hint: registerData["passwordHint"] ?? 'Min. 8 characters',
                           icon: Icons.lock_outline,
                           controller: _passwordController,
                           isPassword: true,
@@ -236,8 +270,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 18),
                         AuthTextField(
-                          label: 'Confirm Password',
-                          hint: 'Re-type password',
+                          label: registerData["confirmPasswordLabel"] ?? 'Confirm Password',
+                          hint: registerData["confirmPasswordHint"] ?? 'Re-type password',
                           icon: Icons.lock_outline,
                           controller: _confirmController,
                           isPassword: true,
@@ -296,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 12),
                         GradientButton(
-                          label: 'Create Account',
+                          label: registerData["buttonText"] ?? 'Create Account',
                           height: 60,
                           isLoading: _isLoading,
                           gradient: AppColors.primaryGradient,
@@ -333,8 +367,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 22,
                             height: 22,
                           ),
-                          label: const Text(
-                            'Google',
+                          label:  Text(
+                            registerData["googleLabel"] ?? 'Google',
                             style: TextStyle(color: AppColors.onSurface),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -357,8 +391,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             size: 30,
                             color: AppColors.onSurface,
                           ),
-                          label: const Text(
-                            'Apple',
+                          label:  Text(
+                            registerData["appleLabel"] ?? 'Apple',
                             style: TextStyle(color: AppColors.onSurface),
                           ),
                           style: OutlinedButton.styleFrom(

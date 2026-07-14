@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../admin/screen/login_content_screen.dart';
+import '../../admin/screen/register_content_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../category.dart';
 import '../models/product.dart';
@@ -58,9 +59,40 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
   }
 
-  void _goToAdmin(){
-    Navigator.of(context).push(MaterialPageRoute(builder: (_)=> const LoginContentPage()));
+  void _goToAdmin() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Admin CMS"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text("Edit Login Page CMS"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginContentPage()),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text("Edit Register Page CMS"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RegisterContentPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = AuthService.instance.isLoggedIn;
@@ -70,16 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Lumina'),
         actions: [
-          if(isLoggedIn && role == "admin")
-          TextButton(
-            onPressed: _goToAdmin,
-            style:TextButton.styleFrom(
-              foregroundColor: AppColors.onSurface,
+          if (isLoggedIn && role == "admin")
+            TextButton(
+              onPressed: _goToAdmin,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.onSurface,
+              ),
+              child: const Text(
+                "Admin",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-            child: const Text("Admin",
-            style: TextStyle(fontWeight: FontWeight.bold),),
-          ),
-          const SizedBox(width: 6,),
+          const SizedBox(width: 6),
           if (!isLoggedIn) ...[
             TextButton(
               onPressed: _goToLogin,
