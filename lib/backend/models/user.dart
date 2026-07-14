@@ -4,6 +4,7 @@ class User{
   String email;
   String phone;
   String password;
+  String role;
 
   User({
     this.id,
@@ -11,6 +12,7 @@ class User{
     required this.email,
     required this.phone,
     required this.password,
+    required this.role,
   });
 
   Map<String,dynamic> toJson(){
@@ -18,7 +20,8 @@ class User{
       "name":name,
       "email":email,
       "phone":phone,
-      "password":password
+      "password":password,
+      "role":"user"
     };
   }
 

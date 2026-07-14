@@ -56,7 +56,7 @@ class _LoginContentPageState extends State<LoginContentPage> {
       loginButton.text = data["loginButton"] ?? "";
       googleButton.text = data["googleButton"] ?? "";
       appleButton.text = data["appleButton"] ?? "";
-      signupText.text = data["singupText"] ?? "";
+      signupText.text = data["signupText"] ?? "";
       signupButton.text = data["signupButton"] ?? "";
 
       setState(() {});

@@ -7,7 +7,7 @@ import '../services/auth_service.dart';
 import '../widgets/product_card.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
-
+import '../../../backend/database/mongo_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,12 +64,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = AuthService.instance.isLoggedIn;
-
+    final role = AuthService.instance.role;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Lumina'),
         actions: [
+          if(isLoggedIn && role == "admin")
           TextButton(
             onPressed: _goToAdmin,
             style:TextButton.styleFrom(

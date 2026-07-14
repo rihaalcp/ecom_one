@@ -4,7 +4,6 @@ import 'package:shelf/shelf.dart';
 import '../database/mongo_service.dart';
 
 Future<Response> registerUser(Request request)async{
-  print("register called");
   final body= await request.readAsString();
   final data = jsonDecode(body);
 
@@ -25,7 +24,8 @@ Future<Response> registerUser(Request request)async{
     "name":data["name"],
     "email":data["email"],
     "phone":data["phone"],
-    "password":data["password"]
+    "password":data["password"],
+    "role":"user"
 });
 return Response.ok(
   jsonEncode({
@@ -64,10 +64,17 @@ if(user["password"] != data["password"]){
 }
 return Response.ok(
   jsonEncode({
-    "success":true,
-    "message":"Login Success"
+    "success": true,
+    "message": "Login Success",
+    "_id": user["_id"].toString(),
+    "name": user["name"],
+    "email": user["email"],
+    "phone": user["phone"],
+    "role": user["role"],
   }),
-  headers: {"Content-Type":"application/json"}
+  headers: {
+    "Content-Type": "application/json",
+  },
 );
 }
 Future<Response> getUsers (Request request)async{

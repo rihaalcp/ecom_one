@@ -33,7 +33,6 @@ Future<Response> saveLoginPage(Request request) async{
       "signupText": data["signupText"],
       "signupButton": data["signupButton"]
     });
-    print(body);
     return Response.ok(
       jsonEncode({
         "success":true,

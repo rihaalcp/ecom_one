@@ -10,4 +10,4 @@ class LoginPageUpdate{
     router.get('/admin/page/get-login-page',getLoginPage);
   return router;
   }
-}
+} 

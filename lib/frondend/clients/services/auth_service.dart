@@ -10,11 +10,13 @@ class AuthService extends ChangeNotifier {
   bool _isLoggedIn = false;
   String? _userName;
   String? _userEmail;
+  String? _role;
 
   bool get isLoggedIn => _isLoggedIn;
+  String? get role => _role;
   String? get userName => _userName;
   String? get userEmail => _userEmail;
-    
+  
   Future<bool> login({required String email, required String password}) async {
     try {
       final response = await http.post(
@@ -27,6 +29,7 @@ class AuthService extends ChangeNotifier {
         _isLoggedIn = true;
         _userName = body["name"];
         _userEmail = body["email"];
+        _role = body["role"];
 
         notifyListeners();
 
@@ -66,6 +69,7 @@ class AuthService extends ChangeNotifier {
     _isLoggedIn = false;
     _userName = null;
     _userEmail = null;
+    _role = null;
     notifyListeners();
   }
 

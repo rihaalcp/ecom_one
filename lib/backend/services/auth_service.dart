@@ -18,7 +18,6 @@ static Future<bool> register(User user) async{
   if(old != null){
     throw Exception("Email already exists");
   }
-
   user.password = hashPassword(user.password);
   await users.insertOne(
     user.toJson()
@@ -45,6 +44,7 @@ static Future<Map?> login(
       "name": user["name"],
       "email": user["email"],
       "phone": user["phone"],
+      "role":user["role"]
     };
 }
 static get loginPageCollection => MongoService.db.collection('LoginPageModel');

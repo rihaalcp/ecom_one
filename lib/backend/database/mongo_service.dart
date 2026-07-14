@@ -16,4 +16,4 @@ class MongoService {
     users = db.collection('users');
     print("Mongo DB Connected");
   }
-}
+} 

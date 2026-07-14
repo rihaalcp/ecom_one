@@ -70,10 +70,8 @@ Future<void> loadPage()async{
   final response = await http.get(
     Uri.parse("http://localhost:5000/admin/page/get-login-page"),
   );
-  print(response);
   if(response.statusCode == 200){
     pageData = jsonDecode(response.body);
-    print("update $pageData");
   }
   setState(() {
     isLoading = false;
@@ -255,7 +253,7 @@ void initState(){
                                   onPressed: () {},
                                   icon:SvgPicture.asset(
                                 'assets/google/google.svg',
-                                width: 24,
+                                width: 24,  
                               height: 24,
                               ),
                                   label: Text(pageData?["googleButton"] ?? "Google",
